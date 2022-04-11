@@ -30,7 +30,6 @@ from os.path import expanduser
 
 known_credentials = None
 browser = None
-started_timer = False
 pasted = False
 credentials = [None, None]
 suppress = True
@@ -159,7 +158,6 @@ def on_activate():
 
 
 def paste_credentials_routine(result):
-    global started_timer
     global suppress
 
     username, password = result
@@ -180,11 +178,6 @@ def paste_credentials_routine(result):
     root = make_window_centered(root)
     root.after(2000, root.destroy)
     root.mainloop()
-
-    if not started_timer:
-        started_timer = True
-        timer = Timer(300, on_time_is_up)
-        timer.start()
 
 
 def paste_activate():
@@ -233,9 +226,7 @@ def get_hwnds_for_pname(pname):
 
 def on_time_is_up():
     global browser
-    global started_timer
-
-    started_timer = False
+    
     print('5 minutes have passed closing browser...')
     browser.quit()
     browser = None
@@ -263,8 +254,12 @@ def retrieve_pwd(title, username=None, email="YOURDEFAULTEMAIL"):  # if no usern
         old_hwnds = get_hwnds_for_pname('chrome.exe')
         browser = webdriver.Chrome(service=s, options=chrome_options)
         print("browser created")
+        
+        timer = Timer(300, on_time_is_up)
+        timer.start()
+        print("5 minute timer started")
+        
         hwnds = get_hwnds_for_pname('chrome.exe')
-
         hwnds_to_hide = list(hwnds - old_hwnds)
         print(f"hiding {len(hwnds_to_hide)} windows")
         for hwnd in hwnds_to_hide:
